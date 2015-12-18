@@ -26,6 +26,7 @@ make
 make install # This avoids the $PATH setting step, and make the Samtools executable from any directory in terminal 
 
 ```
+
 ## Basic Samtools Commands
 - Viewing all Samtools commands by simply typing:
 `samtools`
@@ -69,8 +70,8 @@ $ samtools index Exome_sample.bwamap.sam.bam.sorted.bam  # index the bam file
 $ samtools mpileup -f ../Reference_genome/hg_g1k_v37.fa Exome_sample.bwamap.sam.bam.sorted.bam > Exome_sample.mpileup   # generate genotype likelihoods in mpileup format
 $ samtools mpileup -v -u -f ../Reference_genome/hg_g1k_v37.fa Exome_sample.bwamap.sam.bam.sorted.bam > Exome_sample.vcf   # generate genotype likelihoods in VCF format
 $ samtools mpileup -g -f ../Reference_genome/hg_g1k_v37.fa Exome_sample.bwamap.sam.bam.sorted.bam > Exome_sample.bcf  # generate genotype likelihoods in BCF format
-
 ```
+
 ### samtools tview
 - This is for viewing the reads aligned to the genome
 - Usage: samtools view [options] <aln.bam> [ref.fasta]
@@ -79,10 +80,6 @@ $ samtools mpileup -g -f ../Reference_genome/hg_g1k_v37.fa Exome_sample.bwamap.s
    -p car:pos      go directly to this position
 - Sample code:
 `$ samtools tview -p 16:68194500 -d T Exome_sample.bwamap.sam.bam ../Reference_genome/hg_g1k_v37.fa | more`
-
-
-
-
 
 # Download reference genome
 ## Download reference genome sequence (.fa) used in Galaxy
@@ -100,11 +97,13 @@ Instructions can be found at https://wiki.galaxyproject.org/Admin/UseGalaxyRsync
 ![image](https://cloud.githubusercontent.com/assets/16218822/11802141/0b117f92-a2a2-11e5-8a49-e66f81ae36cf.png)
 
 # Usage of bedtools
+
 ## Installation of bedtools through homebrew
 `$ brew install homebrew/science/bedtools`
 
 ## Commonly used bedtools function
-- bedtools intersect
+
+### bedtools intersect
   - [Options] -wo: Write the original A and B entries plus the number of base pairs of overlap between the two features.
   - [Options] -split: each exon to be considered as separate interval
 `$ bedtools intersect -wo -a GRCh38\:hg38.gtf -b Alus.bed.txt | more`
@@ -114,10 +113,12 @@ or
 `$ bedtools intersect -split -wo -a GRCh38\:hg38.bed.txt -b Alus.bed.txt | wc -l`
   - To check how many genes overlapped in these two files:
 `$ bedtools intersect -wo -a GRCh38\:hg38.gtf -b Alus.bed.txt | cut -f9 | cut -d “ “ -f2 | sort -u | wc -l` 
-- bedtools bamtobed
+
+### bedtools bamtobed
   - [Options] -cigar: Add the CIGAR string to the BED entry as a 7th column
 `$ bedtools bamtobed -cigar -i Sample.bam | more`
-- bedtools bedtobam: 
+
+### bedtools bedtobam: 
   - Usage:   bedtools bedtobam [OPTIONS] -i <bed/gff/vcf> -g <genome>
   - Obtain the <genome> file used in this function through UCSC table browser:
     - Set the parameters in UCSC table browser as following:
@@ -126,7 +127,8 @@ or
 ![image](https://cloud.githubusercontent.com/assets/16218822/11826035/ae91b386-a337-11e5-9a1b-a06a020f4c16.png)
   - Sample code: 
 `$ bedtools bedtobam -i hg38.gtf -g ../Shanshan_Bioinformatics/Reference_genome/hg38.genome > hg38.bam`
-- bedtools getfasta
+
+### bedtools getfasta
   - Usage:   bedtools getfasta [OPTIONS] -fi <fasta> -bed <bed/gff/vcf> -fo <fasta>
   - Sample code:
     - view result per gene
@@ -135,16 +137,21 @@ or
 `$ bedtools getfasta -split -fi ../Shanshan_Bioinformatics/Reference_genome/hg19full.fa -bed RefSeq_bed.txt -fo Refseq_Chr22_hg19.gtf.fasta`
 
 # Usage of bowtie2
+
 ## Installation of bowtie2
 1. Go to http://bowtie-bio.sourceforge.net/bowtie2/faq.shtml to download the latest release
 2. Add Bowtie 2 directory to my PATH environment variable (See the markdown file “ToolsSetup.md”)
+
 ## bowtie2-build
 - bowtie2-build builds a Bowtie index from a set of DNA sequences.
 - Usage: bowtie2-build [options]* <reference_in> <bt2_index_base>
 - Sample code:
 `$ bowtie2-build hg19full.fa hg19`
+
 ## bowtie2 for mapping
+
 ### Usage: 
+```
 bowtie2 [options]* -x <bt2-idx> {-1 <m1> -2 <m2> | -U <r>} [-S <sam>]
 
   <bt2-idx>  Index filename prefix (minus trailing .X.bt2).
@@ -158,6 +165,7 @@ bowtie2 [options]* -x <bt2-idx> {-1 <m1> -2 <m2> | -U <r>} [-S <sam>]
   <sam>      File for SAM output (default: stdout)
 Performance:
   -p/—threads <int> number of alignment threads to launch
+```
 
 ### Sample code:
 -end-to-end mapping:
@@ -167,6 +175,7 @@ Performance:
 `$ bowtie2 -p 4 --local -x ../Reference_genome/hg19_build/hg19 ChIP_Sample.fastq -S ChIP_Sample_local.sam`
 
 # Usage of BWA
+
 ## Installation of BWA
 1. Go to http://sourceforge.net/projects/bio-bwa/files/ to download the latest release
 2. Untar the file, cd to bwa folder in terminal, and type `make`
@@ -177,6 +186,7 @@ To use BWA, you need to first index the reference genome
 `$ bwa index hg_g1k_v37.fa`
 
 ## bwa mem
+
 ### Usage: 
 bwa mem [options] <idxbase> <in1.fq> [in2.fq]
 [Options] -t INT: number of threads
@@ -184,10 +194,13 @@ bwa mem [options] <idxbase> <in1.fq> [in2.fq]
 `$ bwa mem -t 4 ../Reference_genome/hg_g1k_v37.fa Exome_sample_R1.fastq Exome_sample_R2.fastq > Exome_sample.bwamap.sam`
 
 # Usage of bcftools
+
 ## Installation of bcftools
 1. Go to http://www.htslib.org/download/ to download the latest release
 2. Untar the file, cd to bcftools folder in terminal, and type `make install`
+
 ## bcftools call
+
 ### About bcftools call   
 SNP/indel variant calling from VCF/BCF. To be used in conjunction with samtools mpileup.
 
@@ -202,11 +215,9 @@ bcftools call [options] <in.vcf.gz>
 ### Sample code
 
 ```
-
 $ bcftools call -v -m -O z -o Exome_sample.vcf.gz Exome_sample.vcf  # Variant calling
 $ gunzip -c Exome_sample.vcf.gz # for viewing the above output file, zcat won’t work on OS X.
 $ gunzip -c Exome_sample.vcf.gz | grep -v “^#” | wc -l   # To count how many variants are there
-
 ```
 
 
