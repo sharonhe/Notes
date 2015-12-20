@@ -220,4 +220,70 @@ $ gunzip -c Exome_sample.vcf.gz # for viewing the above output file, zcat won’
 $ gunzip -c Exome_sample.vcf.gz | grep -v “^#” | wc -l   # To count how many variants are there
 ```
 
+# Usage of TopHat
+## Installation of TopHat
+1. To use TopHat, you will need the following programs in your PATH:
+
+  a. bowtie2 and bowtie2-align (or bowtie)
+  b. bowtie2-inspect (or bowtie-inspect)
+  c. bowtie2-build (or bowtie-build)
+  d. samtools
+
+2. Go to https://ccb.jhu.edu/software/tophat/index.shtml to download the latest release of binary packages.
+
+3. Add tophat directory to my PATH environment variable (See the markdown file “ToolsSetup.md”)
+
+## TopHat pipeline
+![image](https://cloud.githubusercontent.com/assets/16218822/11915957/13c028da-a673-11e5-8649-b9e8e5b83b75.png)
+
+## Usage:
+```
+tophat [options] <bowtie_index> <reads1[,reads2,...]> [reads1[,reads2,...]] \
+                                    [quals1,[quals2,...]] [quals1[,quals2,...]]
+
+[Options]
+-p/--num-threads               <int>       [ default: 1                   ]
+-o/--output-dir                <string>    [ default: ./tophat_out         ]
+-g/--max-multihits             <int>       [ default: 20                   ]
+-G/--GTF                       <filename>  (GTF/GFF with known transcripts)
+--transcriptome-index          <bwtidx>    (transcriptome bowtie index)
+-r/--mate-inner-dist           <int>       [ default: 50                  ]
+--mate-std-dev                 <int>       [ default: 20                  ]
+```
+
+### Download the GTF file for the use of -G/--GTF with TopHat
+Someone has commented that, "the only GTF reference file that seems to work in TopHat (when using the -G option that is) is refFlat (RefSeq) downloaded from the UCSC Table Browser."
+![image](https://cloud.githubusercontent.com/assets/16218822/11915738/6a13d7c2-a669-11e5-8858-1cc9bc1b09f2.png)
+
+### About the option `--transcriptome-index <dir/prefix>`
+If multiple TopHat runs are planned with the same transcriptome data, TopHat should be first run with the -G/--GTF option together with the --transcriptome-index option pointing to a directory and a name prefix which will indicate where the transcriptome data files will be stored. Then subsequent TopHat runs using the same --transcriptome-index option value will directly use the transcriptome data created in the first run (no -G option needed after the first run). 
+
+### About the option `-r/--mate-inner-dist`
+![image](https://cloud.githubusercontent.com/assets/16218822/11915948/83e0d124-a672-11e5-80b7-ab7e11afdb1c.png)
+If you want to find a good approximation of this distance for your reads you can try running Bowtie2 on a small sample (subset) of the paired reads (both mates) and  taking a look at their mapped positions (we hope to add this automatic fragment length detection in a future version of TopHat). The SAM output of Bowtie2 for paired reads is especially helpful as the 9th field in the SAM alignment lines should show the estimated fragment length, from which you should subtract twice the read length to get the value of the "inner distance" that can be used with the -r parameter (obviously large absolute values for that field should be ignored as for this estimate we only want to consider mates aligned to the same exon).
+
+### About the option `--mate-std-dev`
+- One of the typical ways to estimate these from your data is to take some proportion of your reads and align to a reference transcriptome using BWA. You can then use PICARD (https://broadinstitute.github.io/picard/picard-metric-definitions.html#InsertSizeMetrics) to calculate the insert size metrics, giving you the insert size and standard deviations.
+
+- You can also get mean and standard deviation quickly from a SAM/BAM file using these two awk scripts, replacing YOUR_MEAN in the second line with the output of the first line:
+```
+head -10000 mappings.sam | awk '{if ($9 > 0) {S+=$9; T+=1}}END{print "Mean: " S/T}' 
+head -10000 mappings.sam | awk 'M=YOUR_MEAN{if ($9 > 0) {S+=($9-M)*($9-M); T+=1}}END{print "StdDev: " sqrt(S/T)}'
+```
+
+Or calculate both stats simultaneously:
+`awk '{ if ($9 > 0) { N+=1; S+=$9; S2+=$9*$9 }} END { M=S/N; print "n="N", mean="M", stdev="sqrt ((S2-M*M*N)/(N-1))}'`
+
+## Sample code
+`$ tophat2 -p 10 -o RNA_sample.tophat -r 200 --mate-std-dev 30 -G ../Reference_genome/hg19_refFlat.gtf --transcriptome-index ../Reference_genome/hg19_refFlat/hg19_refFlat ../Reference_genome/hg19_bowtieindexed/hg19 1RNA_sample_R1.fastq 1RNA_sample_R2.fastq`
+
+# Usage of Cufflinks
+## Installation of Cufflinks
+1. Go to http://cole-trapnell-lab.github.io/cufflinks/install/ to download the latest release.
+2. Add tophat directory to my PATH environment variable (See the markdown file “ToolsSetup.md”)
+
+## Cufflinks package workflow
+![image](https://cloud.githubusercontent.com/assets/16218822/11916068/796af9ec-a67a-11e5-8ff5-dc88050bdbd3.png)
+
+
 
