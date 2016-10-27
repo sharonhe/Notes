@@ -17,6 +17,8 @@ Putting your existing work on GitHub and make version control
 
 6. At the top of your GitHub repository’s Quick Setup page, click  to copy the remote repository URL.
 
+7. Set the `origin` with the URL you got in step 6 with command `git remote add origin https://github.com/......`
+
 7. In Terminal, add the URL for the remote repository where your local repository will be pushed.
 `$ git push origin master`
 
