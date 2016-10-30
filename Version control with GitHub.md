@@ -23,7 +23,7 @@ Putting your existing work on GitHub and make version control
 `$ git push origin master`
 
 # Make change or adding a file to an existing repository 
-1. On your computer, make change in an existing file or move a new file to into the local directory.
+1. On your computer, make change in an existing file or move a new file to into the local repository.
 
 2. Open Terminal and change the current working directory to your local project.
 
