@@ -113,6 +113,9 @@ ls {pear,peach}.genome
 - Find the name content in multiple files, and show the line number in the file contains this content
 `grep -n "root" */*.samples`
 
+- Find the "*" column
+`grep "(control + v + tab)\*(control + v + tab)"
+
 - Compress/uncompress one file
 `gzip apple.genome`
 `gunzip apple.genome.gz`
